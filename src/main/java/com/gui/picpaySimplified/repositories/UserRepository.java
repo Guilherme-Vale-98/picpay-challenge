@@ -9,4 +9,5 @@ import com.gui.picpaySimplified.domain.User;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 	Optional<User> findUserByDocument(String document);
+	
 }
