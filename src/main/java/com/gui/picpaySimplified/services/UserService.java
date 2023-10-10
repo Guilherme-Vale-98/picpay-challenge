@@ -1,6 +1,6 @@
 package com.gui.picpaySimplified.services;
 
-import java.math.BigDecimal;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,4 +13,5 @@ public interface UserService {
 	Optional<User> getUserById(UUID uuid);
 	List<User> getAllUsers();
 	Boolean deleteUserById(UUID uuid);
+	
 }

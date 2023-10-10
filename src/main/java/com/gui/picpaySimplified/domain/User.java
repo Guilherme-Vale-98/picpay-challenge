@@ -1,5 +1,6 @@
 package com.gui.picpaySimplified.domain;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -42,6 +43,7 @@ public class User {
     @Column(length = 50)
 	private String firstName;
 	
+	@NotNull
 	private UserType userType;
 	
 	@NotNull
@@ -66,5 +68,8 @@ public class User {
     @NotBlank
 	private String password;
 	
+	@NotNull
+	@NotBlank
+	private BigDecimal balance;
 	
 }
