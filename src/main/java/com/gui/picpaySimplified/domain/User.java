@@ -9,6 +9,8 @@ import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -44,6 +46,7 @@ public class User {
 	private String firstName;
 	
 	@NotNull
+	@Enumerated(EnumType.STRING)
 	private UserType userType;
 	
 	@NotNull
