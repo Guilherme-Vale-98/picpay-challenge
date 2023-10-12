@@ -72,7 +72,6 @@ public class User {
 	private String password;
 	
 	@NotNull
-	@NotBlank
 	private BigDecimal balance;
 	
 }
