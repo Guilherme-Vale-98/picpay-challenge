@@ -38,10 +38,8 @@ public class TransactionServiceImpl implements TransactionService {
 		User payer = userService.getUserById(payerId).orElseThrow();
 		User payee = userService.getUserById(payeeId).orElseThrow();
 		
-		Boolean isAuthorized = this.validateTransaction(payer, payee, amount);
-		
-
-		
+		this.validateTransaction(payer, payee, amount);
+			
 		Transaction newTransaction = new Transaction(payeeId, payer, payee, amount, LocalDateTime.now());
 		payer.setBalance(payer.getBalance().subtract(amount));
 		payee.setBalance(payer.getBalance().add(amount));
@@ -54,15 +52,15 @@ public class TransactionServiceImpl implements TransactionService {
 
 	private Boolean validateTransaction(User payer, User payee, BigDecimal amount) {
 		if(payer.getBalance().compareTo(amount) < 0) {
-			return false;
+			throw new InvalidTransactionException("Not enough balance");
 		}
 		if(payer.getUserType().toString() == "SHOPKEEPER") {
-			return false;
+			throw new InvalidTransactionException("Shopkeepers cannot execute transaction");
 		}
 		
 		ResponseEntity<Map> authorization = restTemplate.getForEntity("https://run.mocky.io/v3/5e325067-364a-40ef-806d-febfe3e9c1da", Map.class);
 		if(authorization.getStatusCode() == HttpStatus.OK && (String) authorization.getBody().get("message") != "Autorizado") {
-			return false;				
+			throw new InvalidTransactionException("Not authorized!");			
 		}
 		return true;		
 	}

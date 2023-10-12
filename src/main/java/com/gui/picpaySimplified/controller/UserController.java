@@ -53,7 +53,7 @@ public class UserController {
     @DeleteMapping(value = USER_PATH_ID)
     public ResponseEntity deleteUserById(@PathVariable("userId") UUID userId) throws Exception{
         if(!userService.deleteUserById(userId)) {
-        	throw new Exception("User not found");
+        	throw new NotFoundException("User not found!");
         }
     	
         return new ResponseEntity(HttpStatus.NO_CONTENT);
