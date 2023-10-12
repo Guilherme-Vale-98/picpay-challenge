@@ -1,6 +1,7 @@
 package com.gui.picpaySimplified.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 import com.gui.picpaySimplified.domain.Transaction;
 import com.gui.picpaySimplified.domain.User;
 import com.gui.picpaySimplified.repositories.TransactionRepository;
-import com.gui.picpaySimplified.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -40,11 +40,16 @@ public class TransactionServiceImpl implements TransactionService {
 		
 		Boolean isAuthorized = this.validateTransaction(payer, payee, amount);
 		
-		if(!isAuthorized) {
-			return null;
-		}
+
 		
-		return null;
+		Transaction newTransaction = new Transaction(payeeId, payer, payee, amount, LocalDateTime.now());
+		payer.setBalance(payer.getBalance().subtract(amount));
+		payee.setBalance(payer.getBalance().add(amount));
+		userService.saveUser(payee);
+		userService.saveUser(payer);
+		
+
+		return newTransaction;
 	}
 
 	private Boolean validateTransaction(User payer, User payee, BigDecimal amount) {
@@ -69,7 +74,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
-	public Optional<List<Transaction>> getTransactionsByPayerId(UUID payerId) {
+	public Optional<List<Transaction>> listTransactionsByPayerId(UUID payerId) {
 		User payer = userService.getUserById(payerId).orElseThrow();
 		return transactionRepository.findAllByPayee(payer);
 	}

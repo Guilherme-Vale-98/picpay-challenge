@@ -2,6 +2,7 @@ package com.gui.picpaySimplified.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -50,7 +51,7 @@ public class Transaction {
 	@NotNull
 	private BigDecimal amount;
 	@NotNull
-	private LocalDate timestamp;
+	private LocalDateTime timestamp;
 	
 
 	

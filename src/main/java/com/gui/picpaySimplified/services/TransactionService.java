@@ -11,5 +11,5 @@ import com.gui.picpaySimplified.domain.User;
 public interface TransactionService {
 	Transaction executeTransaction(UUID payerId, UUID payeeId, BigDecimal amount);
 	Optional<List<Transaction>> listTransactionsByPayeeId(UUID payeeId);
-	Optional<List<Transaction>> getTransactionsByPayerId(UUID payerId);	
+	Optional<List<Transaction>> listTransactionsByPayerId(UUID payerId);	
 }

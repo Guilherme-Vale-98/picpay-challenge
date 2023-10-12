@@ -9,7 +9,7 @@ import com.gui.picpaySimplified.domain.User;
 
 public interface UserService {
 	
-	User saveNewUser(User user);
+	User saveUser(User user);
 	Optional<User> getUserById(UUID uuid);
 	List<User> getAllUsers();
 	Boolean deleteUserById(UUID uuid);
