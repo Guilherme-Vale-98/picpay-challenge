@@ -36,8 +36,8 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	@Transactional
 	public Transaction executeTransaction(UUID payerId, UUID payeeId, BigDecimal amount) {
-		User payer = userService.getUserById(payerId).orElseThrow(NotFoundException::new);
-		User payee = userService.getUserById(payeeId).orElseThrow(NotFoundException::new);
+		User payer = userService.getUserById(payerId).orElseThrow(()-> new NotFoundException("Payer not found"));
+		User payee = userService.getUserById(payeeId).orElseThrow(()-> new NotFoundException("Payee not found"));
 		
 		this.validateTransaction(payer, payee, amount);
 			

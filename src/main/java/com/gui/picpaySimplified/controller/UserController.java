@@ -77,8 +77,8 @@ public class UserController {
      	BigDecimal amount = BigDecimal.valueOf((Integer) body.get("amount")) ;
     	
      	Transaction newTransaction = transactionService.executeTransaction(payerId, payeeId, amount);
-        
-     	return new ResponseEntity(HttpStatus.CREATED);   
+     	HttpHeaders headers = new HttpHeaders();
+     	return new ResponseEntity(headers, HttpStatus.CREATED);   
      }
      
 
