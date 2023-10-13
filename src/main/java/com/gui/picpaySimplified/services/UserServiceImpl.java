@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gui.picpaySimplified.controller.NotFoundException;
 import com.gui.picpaySimplified.domain.User;
 import com.gui.picpaySimplified.repositories.UserRepository;
 
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Optional<User> getUserById(UUID uuid) {
-		return Optional.ofNullable(userRepository.findById(uuid)).orElse(null);
+		return userRepository.findById(uuid);
 	}
 
 	@Override

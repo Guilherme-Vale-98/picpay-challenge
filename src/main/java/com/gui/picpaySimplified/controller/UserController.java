@@ -1,6 +1,9 @@
 package com.gui.picpaySimplified.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gui.picpaySimplified.domain.Transaction;
 import com.gui.picpaySimplified.domain.User;
+import com.gui.picpaySimplified.services.TransactionService;
 import com.gui.picpaySimplified.services.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,9 +31,14 @@ public class UserController {
 
     public static final String USER_PATH = "/v1/users";
     public static final String USER_PATH_ID = USER_PATH + "/{userId}";
+    public static final String USER_TRANSACTION_PATH = USER_PATH+"/transaction";
+   
     
     @Autowired
     UserService userService;
+    
+    @Autowired
+    TransactionService transactionService;
     
     @GetMapping(value = USER_PATH)
     public List<User> getAllUsers() {
@@ -47,7 +57,7 @@ public class UserController {
     @GetMapping(value = USER_PATH_ID)
     public User getUserById(@PathVariable("userId") UUID userId){
 
-        return userService.getUserById(userId).orElseThrow();
+        return userService.getUserById(userId).orElseThrow(()->  new NotFoundException("User not found."));
     }
     
     @DeleteMapping(value = USER_PATH_ID)
@@ -59,5 +69,27 @@ public class UserController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
     
+    @PostMapping(value = USER_TRANSACTION_PATH)
+ 	public ResponseEntity postTransaction(@Validated @RequestBody Map body ){
+     	
+    	UUID payerId = UUID.fromString(body.get("payerId").toString());
+    	UUID payeeId = UUID.fromString(body.get("payeeId").toString());
+     	BigDecimal amount = BigDecimal.valueOf((Integer) body.get("amount")) ;
+    	
+     	Transaction newTransaction = transactionService.executeTransaction(payerId, payeeId, amount);
+        
+     	return new ResponseEntity(HttpStatus.CREATED);   
+     }
+     
+
+    @GetMapping(value = USER_PATH_ID + "/payments")
+    public Optional<List<Transaction>> getAllTransactionsByPayer(@PathVariable("userId") UUID payerId) {
+    	return transactionService.listTransactionsByPayerId(payerId);
+    }
+    
+    @GetMapping(value = USER_PATH_ID + "/earnings")
+    public Optional<List<Transaction>> getAllTransactionsByPayee(@PathVariable("userId") UUID payeeId) {
+    	return transactionService.listTransactionsByPayeeId(payeeId);
+    }
     
 }

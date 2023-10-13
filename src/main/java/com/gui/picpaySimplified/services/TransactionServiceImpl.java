@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.gui.picpaySimplified.controller.NotFoundException;
 import com.gui.picpaySimplified.domain.Transaction;
 import com.gui.picpaySimplified.domain.User;
 import com.gui.picpaySimplified.repositories.TransactionRepository;
@@ -35,22 +36,25 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	@Transactional
 	public Transaction executeTransaction(UUID payerId, UUID payeeId, BigDecimal amount) {
-		User payer = userService.getUserById(payerId).orElseThrow();
-		User payee = userService.getUserById(payeeId).orElseThrow();
+		User payer = userService.getUserById(payerId).orElseThrow(NotFoundException::new);
+		User payee = userService.getUserById(payeeId).orElseThrow(NotFoundException::new);
 		
 		this.validateTransaction(payer, payee, amount);
 			
 		Transaction newTransaction = new Transaction(payeeId, payer, payee, amount, LocalDateTime.now());
 		payer.setBalance(payer.getBalance().subtract(amount));
-		payee.setBalance(payer.getBalance().add(amount));
+		payee.setBalance(payee.getBalance().add(amount));
 		userService.saveUser(payee);
 		userService.saveUser(payer);
 		
-
+		transactionRepository.save(newTransaction);
 		return newTransaction;
 	}
 
-	private Boolean validateTransaction(User payer, User payee, BigDecimal amount) {
+	private Boolean validateTransaction(User payer, User payee, BigDecimal amount) {	
+		if(payer==payee) {
+			throw new InvalidTransactionException("Cannot make transfer to own account");
+		}
 		if(payer.getBalance().compareTo(amount) < 0) {
 			throw new InvalidTransactionException("Not enough balance");
 		}
@@ -59,7 +63,8 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 		
 		ResponseEntity<Map> authorization = restTemplate.getForEntity("https://run.mocky.io/v3/5e325067-364a-40ef-806d-febfe3e9c1da", Map.class);
-		if(authorization.getStatusCode() == HttpStatus.OK && (String) authorization.getBody().get("message") != "Autorizado") {
+		if(authorization.getStatusCode() == HttpStatus.OK && ((String) authorization.getBody().get("message")).equalsIgnoreCase("autorizado") != true) {
+			System.out.println(((String) authorization.getBody().get("message")).equalsIgnoreCase("autorizado"));
 			throw new InvalidTransactionException("Not authorized!");			
 		}
 		return true;		
@@ -67,14 +72,14 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Override
 	public Optional<List<Transaction>> listTransactionsByPayeeId(UUID payeeId) {
-		User payee = userService.getUserById(payeeId).orElseThrow();
+		User payee = userService.getUserById(payeeId).orElseThrow(NotFoundException::new);
 		return transactionRepository.findAllByPayee(payee);	
 	}
 
 	@Override
 	public Optional<List<Transaction>> listTransactionsByPayerId(UUID payerId) {
-		User payer = userService.getUserById(payerId).orElseThrow();
-		return transactionRepository.findAllByPayee(payer);
+		User payer = userService.getUserById(payerId).orElseThrow(NotFoundException::new);
+		return transactionRepository.findAllByPayer(payer);
 	}
 
 	
