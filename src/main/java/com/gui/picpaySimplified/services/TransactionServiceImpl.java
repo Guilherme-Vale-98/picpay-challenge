@@ -26,6 +26,9 @@ public class TransactionServiceImpl implements TransactionService {
 	UserService userService;
 	
 	@Autowired
+	NotificationService notificationService;
+	
+	@Autowired
 	TransactionRepository transactionRepository;
 	
 	@Autowired
@@ -46,6 +49,8 @@ public class TransactionServiceImpl implements TransactionService {
 		payee.setBalance(payee.getBalance().add(amount));
 		userService.saveUser(payee);
 		userService.saveUser(payer);
+		
+		notificationService.sendNotification(payer, payee);
 		
 		transactionRepository.save(newTransaction);
 		return newTransaction;
